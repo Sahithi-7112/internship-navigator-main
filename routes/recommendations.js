@@ -41,19 +41,31 @@ const getStudentAndEligibility = async (userId) => {
 
 const callRagAndBuildResponse = async ({ resumeText, eligibleInternships }) => {
   const internshipKB = await loadKnowledgeBase();
-  const ragRes = await fetch(`${PYTHON_RAG_URL}/recommend-internships`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      resume_text: resumeText,
-      internship_kb: internshipKB,
-      top_k: 3,
-    }),
-  });
+
+  let ragRes;
+  try {
+    ragRes = await fetch(`${PYTHON_RAG_URL}/recommend-internships`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        resume_text: resumeText,
+        internship_kb: internshipKB,
+        top_k: 3,
+      }),
+    });
+  } catch (fetchErr) {
+    // Network error or RAG service is down/sleeping
+    throw new Error("Recommendation service is temporarily unavailable. Please try again in a moment.");
+  }
 
   if (!ragRes.ok) {
-    const text = await ragRes.text();
-    throw new Error(`RAG service error: ${text}`);
+    const contentType = ragRes.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+      // RAG returned HTML (e.g. Render 502 while waking up)
+      throw new Error("Recommendation service is starting up. Please try again in 30 seconds.");
+    }
+    const errData = await ragRes.json().catch(() => ({}));
+    throw new Error(errData.detail || `RAG service error (${ragRes.status})`);
   }
 
   const ragData = await ragRes.json();

@@ -30,6 +30,7 @@ const app = express();
 // CORS — allow deployed frontend OR localhost in dev
 const allowedOrigins = [
   process.env.FRONTEND_URL,
+  "https://internship-navigator-main.vercel.app", // hardcoded Vercel URL
   "http://localhost:8081",
   "http://localhost:5173",
   "http://localhost:3000",
@@ -40,7 +41,8 @@ app.use(cors({
     // Allow requests with no origin (mobile apps, curl, Render health checks)
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) return callback(null, true);
-    callback(new Error(`CORS blocked: ${origin}`));
+    console.warn(`CORS blocked origin: ${origin}`);
+    callback(null, false); // reject cleanly without throwing
   },
   credentials: true,
 }));

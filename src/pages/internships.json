@@ -1,0 +1,18 @@
+{
+  "company": "Google",
+  "location": "Remote",
+  "stipend": "₹50,000",
+  "applyLink": "https://careers.google.com"
+}
+{
+  "company": "Microsoft",
+  "location": "Bangalore",
+  "stipend": "₹40,000",
+  "applyLink": "https://careers.microsoft.com"
+}
+{
+  "company": "Amazon",
+  "location": "Hyderabad",
+  "stipend": "₹45,000",
+  "applyLink": "https://amazon.jobs"
+}
